@@ -1,10 +1,10 @@
-XXXX ?= 8080
+export XXXX ?= 8080
 
 .PHONY: run stop clean test
 
 run:
 	@echo "Starting application on port $(XXXX)..."
-	XXXX=$(XXXX) docker-compose up --build
+	docker-compose up --build
 
 stop:
 	docker-compose down
@@ -14,4 +14,5 @@ clean:
 	rm -f stock-server
 
 test:
-	go test -v ./...
+	@echo "Running tests inside Docker..."
+	docker run --rm -v "$(PWD):/app" -w /app golang:1.26-alpine go test -v ./...
