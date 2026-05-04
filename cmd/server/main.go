@@ -45,6 +45,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 
 	r.Post("/stocks", stocksHandler.SetStocks)
+	r.Get("/stocks", stocksHandler.GetStocks)
 
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))

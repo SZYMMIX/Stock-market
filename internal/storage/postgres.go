@@ -33,7 +33,9 @@ func (s *PostgresStorage) SetBankState(ctx context.Context, stocks []models.Stoc
 		return err
 	}
 
-	defer tx.Rollback(ctx)
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
 
 	_, err = tx.Exec(ctx, "DELETE FROM bank_stocks")
 	if err != nil {
@@ -50,6 +52,24 @@ func (s *PostgresStorage) SetBankState(ctx context.Context, stocks []models.Stoc
 	}
 
 	return tx.Commit(ctx)
+}
+
+func (s *PostgresStorage) GetBankStocks(ctx context.Context) ([]models.Stock, error) {
+	rows, err := s.Pool.Query(ctx, "SELECT stock_name, quantity FROM bank_stocks ORDER BY stock_name")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var stocks []models.Stock
+	for rows.Next() {
+		var st models.Stock
+		if err := rows.Scan(&st.Name, &st.Quantity); err != nil {
+			return nil, err
+		}
+		stocks = append(stocks, st)
+	}
+	return stocks, nil
 }
 
 func (s *PostgresStorage) Close() {
