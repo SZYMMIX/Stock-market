@@ -14,7 +14,7 @@ import (
 	"github.com/szymmix/stock-market/internal/storage"
 )
 
-func TestTradeStock(t *testing.T) {
+func TestWalletsHandler_TradeStock(t *testing.T) {
 	tests := []struct {
 		name           string
 		tradeType      string
