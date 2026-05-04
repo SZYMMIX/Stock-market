@@ -39,6 +39,7 @@ func main() {
 	defer db.Close()
 
 	stocksHandler := handlers.NewStocksHandler(db)
+	walletsHandler := handlers.NewWalletsHandler(db)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -46,6 +47,8 @@ func main() {
 
 	r.Post("/stocks", stocksHandler.SetStocks)
 	r.Get("/stocks", stocksHandler.GetStocks)
+
+	r.Post("/wallets/{wallet_id}/stocks/{stock_name}", walletsHandler.TradeStock)
 
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
