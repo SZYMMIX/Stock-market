@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/szymmix/stock-market/internal/models"
 )
 
 type PostgresStorage struct {
@@ -24,6 +25,31 @@ func NewPostgresStorage(ctx context.Context, connString string) (*PostgresStorag
 
 	log.Println("Successfully connected to Postgres!")
 	return &PostgresStorage{Pool: pool}, nil
+}
+
+func (s *PostgresStorage) SetBankState(ctx context.Context, stocks []models.Stock) error {
+	tx, err := s.Pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx, "DELETE FROM bank_stocks")
+	if err != nil {
+		return err
+	}
+
+	for _, stock := range stocks {
+		_, err = tx.Exec(ctx,
+			"INSERT INTO bank_stocks (stock_name, quantity) VALUES ($1, $2)",
+			stock.Name, stock.Quantity)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit(ctx)
 }
 
 func (s *PostgresStorage) Close() {

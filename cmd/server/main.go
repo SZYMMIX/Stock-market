@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/szymmix/stock-market/internal/handlers"
 	"github.com/szymmix/stock-market/internal/storage"
 )
 
@@ -37,9 +38,13 @@ func main() {
 	}
 	defer db.Close()
 
+	stocksHandler := handlers.NewStocksHandler(db)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+
+	r.Post("/stocks", stocksHandler.SetStocks)
 
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
