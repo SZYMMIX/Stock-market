@@ -12,10 +12,10 @@ import (
 )
 
 type WalletsHandler struct {
-	Storage *storage.PostgresStorage
+	Storage storage.Storage
 }
 
-func NewWalletsHandler(s *storage.PostgresStorage) *WalletsHandler {
+func NewWalletsHandler(s storage.Storage) *WalletsHandler {
 	return &WalletsHandler{Storage: s}
 }
 

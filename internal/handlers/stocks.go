@@ -10,10 +10,10 @@ import (
 )
 
 type StocksHandler struct {
-	Storage *storage.PostgresStorage
+	Storage storage.Storage
 }
 
-func NewStocksHandler(s *storage.PostgresStorage) *StocksHandler {
+func NewStocksHandler(s storage.Storage) *StocksHandler {
 	return &StocksHandler{Storage: s}
 }
 

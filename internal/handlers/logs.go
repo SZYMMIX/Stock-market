@@ -9,7 +9,7 @@ import (
 )
 
 type LogsHandler struct {
-	Storage *storage.PostgresStorage
+	Storage storage.Storage
 }
 
 func (h *LogsHandler) GetLogs(w http.ResponseWriter, r *http.Request) {
