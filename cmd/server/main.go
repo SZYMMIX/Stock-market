@@ -40,6 +40,7 @@ func main() {
 
 	stocksHandler := handlers.NewStocksHandler(db)
 	walletsHandler := handlers.NewWalletsHandler(db)
+	logsHandler := &handlers.LogsHandler{Storage: db}
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -48,10 +49,15 @@ func main() {
 	r.Post("/stocks", stocksHandler.SetStocks)
 	r.Get("/stocks", stocksHandler.GetStocks)
 
+	r.Get("/wallets/{wallet_id}", walletsHandler.GetWallet)
+	r.Get("/wallets/{wallet_id}/stocks/{stock_name}", walletsHandler.GetStockQuantity)
 	r.Post("/wallets/{wallet_id}/stocks/{stock_name}", walletsHandler.TradeStock)
 
-	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
+	r.Get("/log", logsHandler.GetLogs)
+
+	r.Post("/chaos", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Chaos: Killing an instance...")
+		os.Exit(1)
 	})
 
 	srv := &http.Server{

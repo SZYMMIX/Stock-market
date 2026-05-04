@@ -145,6 +145,52 @@ func (s *PostgresStorage) ExecuteTrade(ctx context.Context, walletID, stockName,
 	return tx.Commit(ctx)
 }
 
+func (s *PostgresStorage) GetWallet(ctx context.Context, walletID string) ([]models.Stock, error) {
+	rows, err := s.Pool.Query(ctx, "SELECT stock_name, quantity FROM wallet_stocks WHERE wallet_id = $1", walletID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var stocks []models.Stock
+	for rows.Next() {
+		var st models.Stock
+		if err := rows.Scan(&st.Name, &st.Quantity); err != nil {
+			return nil, err
+		}
+		stocks = append(stocks, st)
+	}
+	return stocks, nil
+}
+
+func (s *PostgresStorage) GetStockQuantityInWallet(ctx context.Context, walletID, stockName string) (int, error) {
+	var qty int
+	err := s.Pool.QueryRow(ctx, "SELECT quantity FROM wallet_stocks WHERE wallet_id = $1 AND stock_name = $2",
+		walletID, stockName).Scan(&qty)
+	if err != nil {
+		return 0, nil
+	}
+	return qty, nil
+}
+
+func (s *PostgresStorage) GetAuditLogs(ctx context.Context) ([]models.AuditLogEntry, error) {
+	rows, err := s.Pool.Query(ctx, "SELECT type, wallet_id, stock_name FROM audit_logs ORDER BY id ASC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var entries []models.AuditLogEntry
+	for rows.Next() {
+		var e models.AuditLogEntry
+		if err := rows.Scan(&e.Type, &e.WalletID, &e.StockName); err != nil {
+			return nil, err
+		}
+		entries = append(entries, e)
+	}
+	return entries, nil
+}
+
 func (s *PostgresStorage) Close() {
 	s.Pool.Close()
 }
