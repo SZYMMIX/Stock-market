@@ -9,6 +9,8 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
+    networks:
+      - stock-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d stockmarket"]
       interval: 5s
@@ -22,7 +24,13 @@ services:
     environment:
       - DB_URL=postgres://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-stockmarket}?
       - APP_PORT=${XXXX}
+    networks:
+      - stock-network
     depends_on:
       db:
         condition: service_healthy
     restart: always
+
+networks:
+  stock-network:
+    driver: bridge
